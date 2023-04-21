@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div class="voice_to_text">
+        <h1>voice to text</h1>
+        <textarea id="convert_text"></textarea>
+        <button id="click_to_convert">Voice to text</button>
+        <button id="send-text">Sent</button>
+    </div>
+    <script>
+        const click_to_convert = document.querySelector('#click_to_convert');
+        const textarea = document.querySelector('#convert_text');
+        const submit = document.querySelector('#send-text');
+
+        // Add 'click' event listener to the button
+        click_to_convert.addEventListener('click', function() {
+
+            // Set variable to keep track of speech recognition status
+            var recognitionActive = true;
+
+            // Assign SpeechRecognition implementation to sr variable
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const sr = new SpeechRecognition();
+            sr.lang = 'vi-VN';
+
+            // Set interim results to true
+            sr.interimResults = false;
+
+            // Event listener for when speech is recognized
+            sr.addEventListener('result', e => {
+                // Get the transcript from the SpeechRecognitionResultList object
+                const transcript = Array.from(e.results)
+                .map(result => result[0].transcript)
+                .join('');
+                
+                // Update the HTML element with the transcription
+                convert_text.innerHTML = transcript;
+            });
+            
+            // Start speech recognition if variable is set to true
+            if (recognitionActive) {
+                    sr.start();
+            }    
+        });
+
+        submit.addEventListener('click', async () => {
+            const form = new FormData();
+            form.append('text-input',textarea.value);
+            try {
+                const response = await fetch('http://127.0.0.1:8080/nhap_lenh', {
+                    method: 'POST',
+                    body: form
+                });
+
+                if(response.ok) {
+                    alert("Sent sucessful");
+                } else {
+                    alert("Error");
+                }
+            } catch(error) {
+                console.error(error);
+                alert("Error sending");
+            }
+        });
+    </script>
+</body>
+</html>

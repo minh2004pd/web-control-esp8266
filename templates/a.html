@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audio Recorder</title>
+</head>
+
+<body>
+    <p>{{message}} jfngkdjfg</p>
+    <div class="container">
+        <h1>Audio Recorder</h1>
+        <button id="recordButton">Record</button>
+        <button id="stopButton" disabled>Stop</button>
+        <button id="sendButton" disabled>Send to Server</button>
+    </div>
+    <script>
+        const recordButton = document.getElementById("recordButton");
+        const stopButton = document.getElementById("stopButton");
+        const sendButton = document.getElementById("sendButton");
+
+        let mediaRecorder;
+        let recordedChunks = [];
+
+        recordButton.addEventListener("click", async () => {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream)
+
+            mediaRecorder.start();
+            recordButton.disabled = true;
+            stopButton.disabled = false;
+            sendButton.disabled = true;
+
+            mediaRecorder.addEventListener("dataavailable", (event) => {
+                if (event.data.size > 0) {
+                    recordedChunks.push(event.data);
+                }
+            });
+        });
+
+        stopButton.addEventListener("click", () => {
+            mediaRecorder.stop();
+            recordButton.disabled = false;
+            stopButton.disabled = true;
+            sendButton.disabled = false;
+        });
+
+        sendButton.addEventListener("click", async () => {
+            // if (recordedChunks.length() == 0) {
+            //     alert("Please record audio first");
+            //     return;
+            // }
+
+            const audioBlob = new Blob(recordedChunks, { type: "audio/wav" });
+            recordedChunks = [];
+
+            const formData = new FormData();
+            formData.append("audio", audioBlob);
+            formData.append("format", "wav");
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/nhap_lenh", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                if (response.ok) {
+                    alert("Audio sent successfully");
+                    sendButton.disabled = true;
+                } else {
+                    alert("Error sending audio");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Error sending audio");
+            }
+        });
+    </script>
+</body>
+
+</html>
