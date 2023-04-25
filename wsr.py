@@ -103,21 +103,22 @@ def tat_den2():
 
 @app.route('/mo_cua')
 def mo_cua():
-    url = cua + "1"
+    url = cua + "0"
     requests.get(url)
     return "Cửa đã được mở"
 
 @app.route('/dong_cua')
 def dong_cua():
-    url = cua + "0"
+    url = cua + "1"
     requests.get(url)
     return "Cửa đã được đóng"
 
 @app.route('/nhap_lenh', methods=['POST'])
 def nhap_lenh():
-    text = request.form['text-input']
+    res = request.form['text-input']
     file = open('voice.txt','a+',encoding='utf-8')
 
+    text = res.lower()
     current_time = datetime.datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
 
@@ -139,17 +140,17 @@ def nhap_lenh():
         return bat_quat()
     elif 'tắt quạt' in text:
         return tat_quat()
-    elif 'quạt nấc 1' in text:
+    elif 'bật quạt 1' in text:
         return nac_1()
-    elif 'tắt nấc 1' in text:
+    elif 'tắt quạt 1' in text:
         return tat_nac_1()
-    elif 'quạt nấc 2' in text:
+    elif 'bật quạt 2' in text:
         return nac_2()
-    elif 'tắt nấc 2' in text:
+    elif 'tắt quạt 2' in text:
         return tat_nac_2()
-    elif 'quạt nấc 3' in text:
+    elif 'bật quạt 3' in text:
         return nac_3()
-    elif 'tắt nấc 3' in text:
+    elif 'tắt quạt 3' in text:
         return tat_nac_3()
     elif 'mở cầu dao' in text:
         return mo_cau_dao()
