@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* body {
+            background-color: ;
+        } */
+    </style>
     <title>Document</title>
 </head>
 <body>
@@ -30,7 +35,7 @@
             sr.lang = 'vi-VN';
 
             // Set interim results to true
-            sr.interimResults = false;
+            sr.interimResults = true;
 
             // Event listener for when speech is recognized
             sr.addEventListener('result', e => {
@@ -42,6 +47,30 @@
                 // Update the HTML element with the transcription
                 convert_text.innerHTML = transcript;
             });
+
+            // Event listener for when speech recognition ends
+            sr.addEventListener('end', async () => {
+                recognitionActive = false;
+
+                const form = new FormData();
+                form.append('text-input', textarea.value);
+                try {
+                    const response = await fetch('http://127.0.0.1:8080/nhap_lenh', {
+                        method: 'POST',
+                        body: form
+                    });
+
+                    if(response.ok) {
+                        alert("Sent successful");
+                    } else {
+                        alert("Error");
+                    }
+                } catch(error) {
+                    console.error(error);
+                    alert("Error sending");
+                }
+            });
+
             
             // Start speech recognition if variable is set to true
             if (recognitionActive) {
@@ -50,22 +79,27 @@
         });
 
         submit.addEventListener('click', async () => {
-            const form = new FormData();
-            form.append('text-input',textarea.value);
-            try {
-                const response = await fetch('http://127.0.0.1:8080/nhap_lenh', {
-                    method: 'POST',
-                    body: form
-                });
+            if(!textarea.value) {
+                alert("No text to send");
+            }
+            else {
+                const form = new FormData();
+                form.append('text-input',textarea.value);
+                try {
+                    const response = await fetch('http://127.0.0.1:8080/nhap_lenh', {
+                        method: 'POST',
+                        body: form
+                    });
 
-                if(response.ok) {
-                    alert("Sent sucessful");
-                } else {
-                    alert("Error");
+                    if(response.ok) {
+                        alert("Sent sucessful");
+                    } else {
+                        alert("Error");
+                    }
+                } catch(error) {
+                    console.error(error);
+                    alert("Error sending");
                 }
-            } catch(error) {
-                console.error(error);
-                alert("Error sending");
             }
         });
     </script>
